@@ -28,9 +28,11 @@ public class TelegramUser {
   private String lastName;
   private Long chatId;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  private List<Debt> debts =  new ArrayList<>();
+//  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//  private List<Debt> debts =  new ArrayList<>();
 
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  private List<Lender> lenders =  new ArrayList<>();
 
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
