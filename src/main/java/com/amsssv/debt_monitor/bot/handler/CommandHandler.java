@@ -7,6 +7,8 @@ import com.amsssv.debt_monitor.service.TelegramUserService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -31,15 +33,19 @@ public class CommandHandler {
     if (command.equals("/start")) {
       Optional<TelegramUser> telegramUser = telegramUserService.findByTelegramUserId(userId);
       if (telegramUser.isPresent()) {
-        bot.sendMessage("This user already exist", chatId);
+        bot.sendTextMessage("This user already exist");
       } else {
         saveUser(userId, userName, firstName, lastName, chatId);
-        bot.sendMessage("Welcome" + userName, chatId);
+        bot.sendTextMessage("Welcome" + userName);
 
       }
     }
-    if (command.equals("/addlender")) {
 
+    if (command.equals("/addlender")) {
+      Map<String, String> buttons = new HashMap<>();
+      buttons.put("newLender", "Добавить");
+
+      bot.sendTextMessage("Выберите кредитора, либо добавьте нового", buttons);
     }
   }
 
