@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,5 +22,13 @@ public class LenderService {
     lender.setUser(user);
     lender.setCreatedAt(LocalDateTime.now());
     return lenderRepository.save(lender);
+  }
+
+  public Optional<Lender> findByLenderName(String lenderName) {
+    return lenderRepository.findByName(lenderName);
+  }
+
+  public List<Lender> findAll() {
+    return lenderRepository.findAll();
   }
 }

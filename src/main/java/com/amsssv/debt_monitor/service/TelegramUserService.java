@@ -15,6 +15,7 @@ import java.util.Optional;
 public class TelegramUserService {
 
   private final TelegramUserRepository telegramUserRepository;
+  private final LenderService lenderService;
 
   public void save(Long telegramUserId, String userName, String firstName, String lastName, Long chatId) {
     TelegramUser telegramUser =  new TelegramUser();
@@ -30,5 +31,11 @@ public class TelegramUserService {
 
   public Optional<TelegramUser> findByTelegramUserId(Long telegramUserId) {
     return telegramUserRepository.findByTelegramUserId(telegramUserId);
+  }
+
+  public void addLender(String lenderName, Long telegramUserId) {
+      Optional<TelegramUser> user = telegramUserRepository.findByTelegramUserId(telegramUserId);
+      TelegramUser telegramUser = user.orElse(null);
+    lenderService.save(lenderName, telegramUser);
   }
 }
