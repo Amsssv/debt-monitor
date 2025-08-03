@@ -16,19 +16,16 @@ public class TelegramUserService {
 
   private final TelegramUserRepository telegramUserRepository;
 
-  public TelegramUser saveOrUpdate(Long telegramUserId, String userName, String firstName, String lastName, Long chatId) {
-    TelegramUser telegramUser = telegramUserRepository.findByTelegramUserId(telegramUserId).orElse(null);
-    if (telegramUser == null) {
-      telegramUser = new TelegramUser();
+  public void save(Long telegramUserId, String userName, String firstName, String lastName, Long chatId) {
+    TelegramUser telegramUser =  new TelegramUser();
       telegramUser.setTelegramUserId(telegramUserId);
       telegramUser.setUserName(userName);
       telegramUser.setFirstName(firstName);
       telegramUser.setLastName(lastName);
       telegramUser.setChatId(chatId);
       telegramUser.setCreatedAt(LocalDateTime.now());
-    }
-    telegramUser.setUpdatedAt(LocalDateTime.now());
-    return telegramUserRepository.save(telegramUser);
+
+    telegramUserRepository.save(telegramUser);
   }
 
   public Optional<TelegramUser> findByTelegramUserId(Long telegramUserId) {
