@@ -1,11 +1,13 @@
 package com.amsssv.debt_monitor.bot;
 
-
+import com.amsssv.debt_monitor.bot.handler.CallbackHandler;
 import com.amsssv.debt_monitor.bot.handler.CommandHandler;
+import com.amsssv.debt_monitor.bot.handler.TextHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -13,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,14 +23,19 @@ import java.util.Map;
 public class Bot extends TelegramLongPollingBot {
 
   public final CommandHandler commandHandler;
+  private final CallbackHandler callbackHandler;
+  private final TextHandler textHandler;
   private final ThreadLocal<Update> updateEvent = new ThreadLocal<>();
+  public final Map<Long,BotState> state = new HashMap<>();
 
   @Value(value = "${bot.username}")
   private String botUsername;
 
-  public Bot(@Value(value = "${bot.token}") String token, CommandHandler commandHandler) {
+  public Bot(@Value(value = "${bot.token}") String token, CommandHandler commandHandler, CallbackHandler callbackHandler, TextHandler textHandler) {
     super(token);
     this.commandHandler = commandHandler;
+    this.callbackHandler = callbackHandler;
+    this.textHandler = textHandler;
   }
 
   @Override
@@ -35,13 +43,9 @@ public class Bot extends TelegramLongPollingBot {
     this.updateEvent.set(update);
 
     if (update.hasCallbackQuery()) {
-      String callbackQuery = update.getCallbackQuery().getData();
+      CallbackQuery callbackQuery = update.getCallbackQuery() ;
 
-      sendTextMessage(callbackQuery);
-      if ("callbackData".equals(callbackQuery)) {
-        sendTextMessage(callbackQuery);
-      }
-
+      callbackHandler.handleCommand(callbackQuery, this);
     }
 
     if (update.hasMessage()) {
@@ -49,6 +53,8 @@ public class Bot extends TelegramLongPollingBot {
 
       if (message.isCommand()) {
         commandHandler.handleCommand(message, this);
+      } else {
+        textHandler.handleCommand(message, this);
       }
     }
   }
