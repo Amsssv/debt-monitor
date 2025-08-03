@@ -31,9 +31,8 @@ public class CommandHandler {
     String userName = message.getFrom().getUserName();
     String firstName = message.getFrom().getFirstName();
     String lastName = message.getFrom().getLastName();
-
+    Optional<TelegramUser> telegramUser = telegramUserService.findByTelegramUserId(userId) ;
     if (command.equals("/start")) {
-      Optional<TelegramUser> telegramUser = telegramUserService.findByTelegramUserId(userId);
       if (telegramUser.isPresent()) {
         bot.sendTextMessage("This user already exist");
       } else {
@@ -42,9 +41,10 @@ public class CommandHandler {
       }
     }
 
-    if (command.equals("/lenderList")) {
+    if (command.equals("/add")) {
       Map<String, String> buttons = new HashMap<>();
-      List<Lender>  lenders = getAllLenders();
+      List<Lender>  lenders = findAllLendersByUserId(telegramUser.get().getId());
+
       for (Lender lender : lenders) {
         String lenderKey  = "lender" +  lender.getId();
         buttons.put(lenderKey, lender.getName());
@@ -65,7 +65,7 @@ public class CommandHandler {
     );
   }
 
-  public List<Lender> getAllLenders() {
-    return lenderService.findAll();
+  public List<Lender> findAllLendersByUserId(Long userId) {
+    return lenderService.findAllByUserId(userId);
   }
 }

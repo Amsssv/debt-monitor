@@ -16,12 +16,12 @@ public class LenderService {
 
   private final LenderRepository lenderRepository;
 
-  public Lender save(String name, TelegramUser user) {
+  public void save(String name, TelegramUser user) {
     Lender lender = new Lender();
     lender.setName(name);
     lender.setUser(user);
     lender.setCreatedAt(LocalDateTime.now());
-    return lenderRepository.save(lender);
+    lenderRepository.save(lender);
   }
 
   public Optional<Lender> findByLenderName(String lenderName) {
@@ -30,5 +30,9 @@ public class LenderService {
 
   public List<Lender> findAll() {
     return lenderRepository.findAll();
+  }
+
+  public List<Lender> findAllByUserId(Long userId) {
+    return lenderRepository.findByUserId(userId);
   }
 }
