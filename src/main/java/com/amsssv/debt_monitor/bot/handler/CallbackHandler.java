@@ -59,7 +59,6 @@ public class CallbackHandler {
   public Long getLenderId(String lenderData) {
     Pattern pattern = Pattern.compile("\\d+");
     Matcher matcher = pattern.matcher(lenderData);
-    System.out.println(lenderData);
     if (matcher.find()) {
       return Long.parseLong(matcher.group());
     }
