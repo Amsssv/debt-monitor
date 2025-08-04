@@ -32,6 +32,10 @@ public class LenderService {
     return lenderRepository.findAll();
   }
 
+  public Lender findById(Long id) {
+    return lenderRepository.findById(id).orElse(null);
+  }
+
   public List<Lender> findAllByUserId(Long userId) {
     return lenderRepository.findByUserId(userId);
   }

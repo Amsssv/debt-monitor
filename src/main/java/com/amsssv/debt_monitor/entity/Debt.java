@@ -8,28 +8,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class Lender {
-
+public class Debt {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  private String name;
+
+  private Integer amount;
 
   @ManyToOne
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "lender_id")
   @JsonIgnore
-  private TelegramUser user;
-
-  @OneToMany(mappedBy = "lender", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  private List<Debt> debts = new ArrayList<>();
+  private Lender lender;
 
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
