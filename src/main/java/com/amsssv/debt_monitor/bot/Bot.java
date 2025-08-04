@@ -3,6 +3,9 @@ package com.amsssv.debt_monitor.bot;
 import com.amsssv.debt_monitor.bot.handler.CallbackHandler;
 import com.amsssv.debt_monitor.bot.handler.CommandHandler;
 import com.amsssv.debt_monitor.bot.handler.TextHandler;
+import com.amsssv.debt_monitor.entity.Lender;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -27,6 +30,9 @@ public class Bot extends TelegramLongPollingBot {
   private final TextHandler textHandler;
   private final ThreadLocal<Update> updateEvent = new ThreadLocal<>();
   public final Map<Long,BotState> state = new HashMap<>();
+  @Getter
+  @Setter
+  public Lender selectedLender;
 
   @Value(value = "${bot.username}")
   private String botUsername;
