@@ -1,7 +1,6 @@
 package com.amsssv.debt_monitor.service;
 
 import com.amsssv.debt_monitor.entity.Contact;
-import com.amsssv.debt_monitor.entity.ContactType;
 import com.amsssv.debt_monitor.entity.TelegramUser;
 import com.amsssv.debt_monitor.repository.TelegramUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +31,9 @@ public class TelegramUserService {
         return telegramUserRepository.findByTelegramUserId(telegramUserId);
     }
 
-    public Contact addContact(String name, ContactType type, Long telegramUserId) {
+    public Contact addContact(String name, Long telegramUserId) {
         TelegramUser user = telegramUserRepository.findByTelegramUserId(telegramUserId)
                 .orElseThrow(() -> new IllegalStateException("User not found: " + telegramUserId));
-        return contactService.save(name, type, user);
+        return contactService.save(name, user);
     }
 }

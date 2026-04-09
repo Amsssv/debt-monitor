@@ -1,7 +1,6 @@
 package com.amsssv.debt_monitor.service;
 
 import com.amsssv.debt_monitor.entity.Contact;
-import com.amsssv.debt_monitor.entity.ContactType;
 import com.amsssv.debt_monitor.entity.TelegramUser;
 import com.amsssv.debt_monitor.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +16,9 @@ public class ContactService {
 
     private final ContactRepository contactRepository;
 
-    public Contact save(String name, ContactType type, TelegramUser user) {
+    public Contact save(String name, TelegramUser user) {
         Contact contact = new Contact();
         contact.setName(name);
-        contact.setType(type);
         contact.setUser(user);
         contact.setCreatedAt(LocalDateTime.now());
         return contactRepository.save(contact);
@@ -30,8 +28,8 @@ public class ContactService {
         return contactRepository.findByNameAndUser_TelegramUserId(name, telegramUserId);
     }
 
-    public List<Contact> findByTelegramUserIdAndType(Long telegramUserId, ContactType type) {
-        return contactRepository.findByUser_TelegramUserIdAndType(telegramUserId, type);
+    public List<Contact> findByTelegramUserId(Long telegramUserId) {
+        return contactRepository.findByUser_TelegramUserId(telegramUserId);
     }
 
     public List<Contact> findWithDebtsByTelegramUserId(Long telegramUserId) {

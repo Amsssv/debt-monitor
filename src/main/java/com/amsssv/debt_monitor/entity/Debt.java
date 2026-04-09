@@ -1,5 +1,6 @@
 package com.amsssv.debt_monitor.entity;
 
+import com.amsssv.debt_monitor.entity.ContactType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,9 @@ public class Debt {
     private Long id;
 
     private Integer amount;
+
+    @Enumerated(EnumType.STRING)
+    private ContactType type;
 
     @ManyToOne
     @JoinColumn(name = "contact_id")

@@ -53,7 +53,7 @@ public class CallbackHandler {
     }
 
     private void showContactList(Bot bot, Long telegramUserId, ContactType type) {
-        List<Contact> contacts = contactService.findByTelegramUserIdAndType(telegramUserId, type);
+        List<Contact> contacts = contactService.findByTelegramUserId(telegramUserId);
         Map<String, String> buttons = new LinkedHashMap<>();
         for (Contact c : contacts) {
             buttons.put("contact" + c.getId(), c.getName());

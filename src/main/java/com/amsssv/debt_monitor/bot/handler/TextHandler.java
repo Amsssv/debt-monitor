@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
+import java.util.Locale;
 import java.util.Optional;
 
 @Component
@@ -31,7 +32,7 @@ public class TextHandler {
             if (existing.isPresent()) {
                 bot.sendTextMessage("Контакт с именем «" + text + "» уже существует");
             } else {
-                Contact newContact = telegramUserService.addContact(text, session.getPendingType(), telegramUserId);
+                Contact newContact = telegramUserService.addContact(text, telegramUserId);
                 session.setSelectedContact(newContact);
                 session.setState(BotState.WAITING_FOR_AMOUNT);
                 bot.sendTextMessage("Введите сумму (в рублях):");
@@ -43,12 +44,16 @@ public class TextHandler {
             try {
                 int amount = Integer.parseInt(text.trim());
                 Contact contact = session.getSelectedContact();
-                debtService.save(amount, contact);
+                debtService.save(amount, session.getPendingType(), contact);
                 session.setState(BotState.IDLE);
-                bot.sendTextMessage("Добавлено: " + contact.getName() + " — " + amount + " ₽");
+                bot.sendTextMessage("Добавлено: " + contact.getName() + " — " + formatAmount(amount) + " ₽");
             } catch (NumberFormatException e) {
                 bot.sendTextMessage("Введите целое число, например: 5000");
             }
         }
+    }
+
+    private static String formatAmount(int amount) {
+        return String.format(Locale.US, "%,d", amount).replace(",", "\u00A0");
     }
 }

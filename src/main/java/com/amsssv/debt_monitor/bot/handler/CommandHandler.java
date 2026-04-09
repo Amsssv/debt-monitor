@@ -3,6 +3,7 @@ package com.amsssv.debt_monitor.bot.handler;
 import com.amsssv.debt_monitor.bot.Bot;
 import com.amsssv.debt_monitor.entity.Contact;
 import com.amsssv.debt_monitor.entity.ContactType;
+import com.amsssv.debt_monitor.entity.Debt;
 import com.amsssv.debt_monitor.entity.TelegramUser;
 import com.amsssv.debt_monitor.service.ContactService;
 import com.amsssv.debt_monitor.service.TelegramUserService;
@@ -12,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -60,10 +62,10 @@ public class CommandHandler {
             List<Contact> contacts = contactService.findWithDebtsByTelegramUserId(telegramUserId);
 
             List<Contact> creditors = contacts.stream()
-                    .filter(c -> c.getType() == ContactType.CREDITOR && !c.getDebts().isEmpty())
+                    .filter(c -> c.getDebts().stream().anyMatch(d -> d.getType() == ContactType.CREDITOR))
                     .toList();
             List<Contact> debtors = contacts.stream()
-                    .filter(c -> c.getType() == ContactType.DEBTOR && !c.getDebts().isEmpty())
+                    .filter(c -> c.getDebts().stream().anyMatch(d -> d.getType() == ContactType.DEBTOR))
                     .toList();
 
             if (creditors.isEmpty() && debtors.isEmpty()) {
@@ -71,31 +73,39 @@ public class CommandHandler {
                 return;
             }
 
-            StringBuilder sb = new StringBuilder("📋 Ваши долги:\n");
+            StringBuilder sb = new StringBuilder("📋 Учёт долгов:\n");
 
             if (!creditors.isEmpty()) {
-                sb.append("\n💳 Я должен:\n");
+                sb.append("\n💳 Я должен:\n\n");
                 int total = 0;
                 for (Contact c : creditors) {
-                    int sum = c.getDebts().stream().mapToInt(d -> d.getAmount()).sum();
+                    int sum = c.getDebts().stream()
+                            .filter(d -> d.getType() == ContactType.CREDITOR)
+                            .mapToInt(Debt::getAmount).sum();
                     total += sum;
-                    sb.append("• ").append(c.getName()).append(" — ").append(sum).append(" ₽\n");
+                    sb.append("• ").append(c.getName()).append(" — ").append(formatAmount(sum)).append(" ₽\n");
                 }
-                sb.append("Итого: ").append(total).append(" ₽\n");
+                sb.append("\nИтого: ").append(formatAmount(total)).append(" ₽\n");
             }
 
             if (!debtors.isEmpty()) {
-                sb.append("\n💰 Мне должны:\n");
+                sb.append("\n💰 Мне должны:\n\n");
                 int total = 0;
                 for (Contact c : debtors) {
-                    int sum = c.getDebts().stream().mapToInt(d -> d.getAmount()).sum();
+                    int sum = c.getDebts().stream()
+                            .filter(d -> d.getType() == ContactType.DEBTOR)
+                            .mapToInt(Debt::getAmount).sum();
                     total += sum;
-                    sb.append("• ").append(c.getName()).append(" — ").append(sum).append(" ₽\n");
+                    sb.append("• ").append(c.getName()).append(" — ").append(formatAmount(sum)).append(" ₽\n");
                 }
-                sb.append("Итого: ").append(total).append(" ₽\n");
+                sb.append("\nИтого: ").append(formatAmount(total)).append(" ₽\n");
             }
 
             bot.sendTextMessage(sb.toString());
         }
+    }
+
+    private static String formatAmount(int amount) {
+        return String.format(Locale.US, "%,d", amount).replace(",", "\u00A0");
     }
 }

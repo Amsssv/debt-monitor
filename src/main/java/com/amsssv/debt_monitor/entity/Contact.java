@@ -25,9 +25,6 @@ public class Contact {
 
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    private ContactType type;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
