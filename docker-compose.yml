@@ -16,7 +16,9 @@ services:
       retries: 10
 
   app:
-    build: .
+    build:
+      context: .
+      network: host
     image: debt-monitor
     restart: on-failure
     network_mode: host
