@@ -1,6 +1,5 @@
 package com.amsssv.debt_monitor.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,22 +18,19 @@ import java.util.List;
 @Setter
 public class TelegramUser {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  private Long telegramUserId;
-  private String userName;
-  private String firstName;
-  private String lastName;
-  private Long chatId;
+    private Long telegramUserId;
+    private String userName;
+    private String firstName;
+    private String lastName;
+    private Long chatId;
 
-//  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//  private List<Debt> debts =  new ArrayList<>();
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Contact> contacts = new ArrayList<>();
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  private List<Lender> lenders =  new ArrayList<>();
-
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

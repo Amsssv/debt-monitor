@@ -2,66 +2,63 @@ package com.amsssv.debt_monitor.bot.handler;
 
 import com.amsssv.debt_monitor.bot.Bot;
 import com.amsssv.debt_monitor.bot.BotState;
-import com.amsssv.debt_monitor.entity.Lender;
-import com.amsssv.debt_monitor.service.LenderService;
+import com.amsssv.debt_monitor.bot.UserSession;
+import com.amsssv.debt_monitor.entity.Contact;
+import com.amsssv.debt_monitor.entity.ContactType;
+import com.amsssv.debt_monitor.service.ContactService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class CallbackHandler {
 
-  LenderService lenderService;
+    private final ContactService contactService;
 
-  public CallbackHandler(LenderService lenderService) {
-    this.lenderService = lenderService;
-  }
+    public void handleCommand(CallbackQuery callbackQuery, Bot bot) {
+        String data = callbackQuery.getData();
+        Long telegramUserId = callbackQuery.getFrom().getId();
+        UserSession session = bot.getSession(telegramUserId);
 
-  public void handleCommand(CallbackQuery callbackQuery, Bot bot) {
-    String data = callbackQuery.getData();
+        if (data.startsWith("type_")) {
+            ContactType type = ContactType.valueOf(data.substring(5));
+            session.setPendingType(type);
+            showContactList(bot, telegramUserId, type);
+            return;
+        }
 
-    if ("addLender".equals(data)) {
-      bot.sendTextMessage("""
-          Добавьте кредитора. Используйте формат: \
-          
-          ООО ВТБ\
-          
-          Владислав\
-          
-          Игорь Николаевич""");
+        if ("addContact".equals(data)) {
+            session.setState(BotState.WAITING_FOR_CONTACT_NAME);
+            bot.sendTextMessage("Введите имя контакта:");
+            return;
+        }
 
-      bot.state.put(bot.getChatId(), BotState.WAITING_FOR_LENDER_NAME);
+        if (data.matches("contact\\d+")) {
+            Long contactId = Long.parseLong(data.substring(7));
+            Optional<Contact> contact = contactService.findById(contactId);
+            if (contact.isEmpty()) {
+                bot.sendTextMessage("Контакт не найден. Попробуйте /add снова.");
+                return;
+            }
+            session.setSelectedContact(contact.get());
+            session.setState(BotState.WAITING_FOR_AMOUNT);
+            bot.sendTextMessage("Введите сумму (в рублях):");
+        }
     }
 
-    if (data.contains("lender")) {
-      bot.sendTextMessage("""
-          Добавьте cумму долга. Используйте формат: \
-         
-         20000\
-         
-         10000\
-         
-         50000\
-         """);
-      bot.state.put(bot.getChatId(), BotState.WAITING_FOR_AMOUNT);
-      bot.setSelectedLender(getLenderById(data));
+    private void showContactList(Bot bot, Long telegramUserId, ContactType type) {
+        List<Contact> contacts = contactService.findByTelegramUserIdAndType(telegramUserId, type);
+        Map<String, String> buttons = new LinkedHashMap<>();
+        for (Contact c : contacts) {
+            buttons.put("contact" + c.getId(), c.getName());
+        }
+        buttons.put("addContact", "Добавить нового");
+        bot.sendTextMessage("Выберите контакта или добавьте нового:", buttons);
     }
-  }
-
-  public Lender getLenderById(String data) {
-    Long lenderId = getLenderId(data);
-    return lenderService.findById(lenderId);
-  }
-
-  public Long getLenderId(String lenderData) {
-    Pattern pattern = Pattern.compile("\\d+");
-    Matcher matcher = pattern.matcher(lenderData);
-    if (matcher.find()) {
-      return Long.parseLong(matcher.group());
-    }
-    return 0L;
-  }
 }
