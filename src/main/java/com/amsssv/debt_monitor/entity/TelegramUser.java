@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "telegram_users")
+@Entity
+@Table(name = "telegram_users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
